@@ -1,0 +1,117 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build",
+      "type": "shell",
+      "command": "make",
+      "args": [
+        "${input:buildTarget}"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/docker_build"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Flash",
+      "type": "shell",
+      "command": "make",
+      "args": [
+        "${input:flashTarget}"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/docker_build"
+      },
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Log",
+      "type": "shell",
+      "command": "make",
+      "args": [
+        "${input:logTarget}"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/docker_build"
+      },
+      "group": "build",
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "buildTarget",
+      "type": "pickString",
+      "description": "Select build configuration",
+      "options": [
+        {
+          "label": "Debug",
+          "value": "debug"
+        },
+        {
+          "label": "Release (with logging)",
+          "value": "release_log"
+        },
+        {
+          "label": "Release (no logging)",
+          "value": "release"
+        },
+        {
+          "label": "Sanitize",
+          "value": "sanitize"
+        }
+      ],
+      "default": "release_log"
+    },
+    {
+      "id": "flashTarget",
+      "type": "pickString",
+      "description": "Select flash configuration",
+      "options": [
+        {
+          "label": "Debug",
+          "value": "flash_debug"
+        },
+        {
+          "label": "Release (with logging)",
+          "value": "flash_release_log"
+        },
+        {
+          "label": "Release (no logging)",
+          "value": "flash_release"
+        },
+        {
+          "label": "Sanitize",
+          "value": "flash_sanitize"
+        }
+      ],
+      "default": "flash_release_log"
+    },
+    {
+      "id": "logTarget",
+      "type": "pickString",
+      "description": "Select log configuration",
+      "options": [
+        {
+          "label": "Debug",
+          "value": "log_debug"
+        },
+        {
+          "label": "Release",
+          "value": "log_release_log"
+        },
+        {
+          "label": "Sanitize",
+          "value": "log_sanitize"
+        }
+      ],
+      "default": "log_release_log"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+name: Build Firmware
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build_firmware:
+    runs-on: ubuntu-latest
+    container:
+      image: docker.io/kvasirio/rp2350:latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build firmware
+        run: ./scripts/build.sh
+
+      - name: Upload firmware artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware
+          path: |
+            docker_build/*.bin
+            docker_build/*.hex
+            docker_build/*.elf
+            docker_build/*.uf2
+            docker_build/*.lst
+            docker_build/*.map

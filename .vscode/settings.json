@@ -1,0 +1,18 @@
+{
+  "cmake.buildDirectory": "${workspaceFolder}/docker_build",
+  "cmake.configureEnvironment": {
+    "CC": "clang",
+    "CXX": "clang++"
+  },
+  // Uncomment and set for Windows users using JLinkRemoteServer
+  // "cmake.configureArgs": [
+  //   "-DJLINK_IP=host.docker.internal"
+  // ],
+  "git.openRepositoryInParentFolders": "never",
+  "clangd.arguments": [
+    "--compile-commands-dir=docker_build",
+    "--header-insertion=never",
+    "--background-index"
+  ],
+  "C_Cpp.intelliSenseEngine": "disabled"
+}

@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "ms-vscode.cpptools-extension-pack",
+    "llvm-vs-code-extensions.vscode-clangd",
+    "marus25.cortex-debug"
+  ],
+  "unwantedRecommendations": []
+}
