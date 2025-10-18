@@ -140,7 +140,7 @@ Windows Docker Desktop does not expose the USB subsystem to containers, so you c
    When running cmake, add the JLINK_IP variable:
 
    ```bash
-   cmake .. -DJLINK_IP=host.docker.internal
+   cmake .. -DJLINK_IP=<JLinkRemoterServerIP>
    ```
 
    **Option B: For VSCode (inside Docker container):**
@@ -149,17 +149,16 @@ Windows Docker Desktop does not expose the USB subsystem to containers, so you c
 
    ```json
    "cmake.configureArgs": [
-     "-DJLINK_IP=host.docker.internal"
+     "-DJLINK_IP=<JLinkRemoterServerIP>"
    ],
    ```
 
 3. **Flash and debug as normal:**
 
-   The flash and debug commands will now connect to the JLinkRemoteServer running on your Windows host via the special `host.docker.internal` hostname.
+   The flash and debug commands will now connect to the JLinkRemoteServer running on your Windows host.
 
 ### Notes
 
-- `host.docker.internal` is a special DNS name that resolves to the host machine's IP from inside Docker Desktop
 - JLinkRemoteServer must be running whenever you want to flash or debug
 - This setup works for both command-line and VSCode workflows
 

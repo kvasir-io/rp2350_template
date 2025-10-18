@@ -6,7 +6,7 @@
   },
   // Uncomment and set for Windows users using JLinkRemoteServer
   // "cmake.configureArgs": [
-  //   "-DJLINK_IP=host.docker.internal"
+  //   "-DJLINK_IP=<JLinkRemoterServerIP>"
   // ],
   "git.openRepositoryInParentFolders": "never",
   "clangd.arguments": [
