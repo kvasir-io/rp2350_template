@@ -40,26 +40,32 @@ jobs:
     runs-on: ubuntu-latest
     needs: build_firmware
     if: github.ref == 'refs/heads/master'
-    permissions:
-      contents: write
 
     steps:
-      - name: Checkout
+      - name: checkout repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Download firmware
+      - name: download firmware
         uses: actions/download-artifact@v4
         with:
           name: firmware
           path: build
 
-      - name: Create release with GitHub CLI
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          RELEASE_NAME="build-$(date +%Y%m%d-%H%M%S)-${GITHUB_SHA:0:7}"
-          gh release create "$RELEASE_NAME" \
-            --title "Build $RELEASE_NAME" \
-            --notes "Automated build from commit ${GITHUB_SHA:0:7}" \
-            --prerelease \
-            build/*.bin build/*.hex build/*.elf build/*.uf2 build/*.lst build/*.map
+      - name: zip firmware
+        uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r firmware.zip build
+
+      - name: create release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: firmware.zip
+          tag: build-${{ github.run_number }}-${{ github.sha }}
+          name: Build ${{ github.run_number }} (${{ github.sha }})
+          body: |
+            Automated build from commit ${{ github.sha }}
+            Run number: ${{ github.run_number }}
+            Commit: ${{ github.event.head_commit.message }}
+          prerelease: true
