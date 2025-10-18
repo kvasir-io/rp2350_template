@@ -204,11 +204,9 @@ This setup requires manual installation of dependencies but gives you full contr
    cd build
 
    # Configure with CMake
-   cmake .. \
+   env CC=clang CXX=clang++ cmake .. \
      -DKVASIR_ROOT=/path/to/kvasir_deps/Kvasir_SDK \
-     -DUSE_FORCE_FETCH=ON \
-     -DCMAKE_C_COMPILER=clang \
-     -DCMAKE_CXX_COMPILER=clang++
+     -DUSE_FORCE_FETCH=ON
    ```
 
 3. **Build the project:**
