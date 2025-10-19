@@ -8,6 +8,8 @@
       "cwd": "${workspaceFolder}",
       "executable": "${workspaceFolder}/docker_build/${input:debugBinary}.elf",
       "servertype": "jlink",
+      // Uncomment and set for Windows users using JLinkRemoteServer
+      // "ipAddress": "<JLinkRemoterServerIP>",
       "device": "RP2350_M33_0",
       "interface": "swd",
       "svdFile": "/opt/chip/chip.svd",
@@ -23,6 +25,8 @@
       "cwd": "${workspaceFolder}",
       "executable": "${workspaceFolder}/docker_build/${input:debugBinary}.elf",
       "servertype": "jlink",
+      // Uncomment and set for Windows users using JLinkRemoteServer
+      // "ipAddress": "<JLinkRemoterServerIP>",
       "device": "RP2350_M33_0",
       "interface": "swd",
       "svdFile": "/opt/chip/chip.svd",

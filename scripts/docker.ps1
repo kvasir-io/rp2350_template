@@ -29,7 +29,7 @@ $DockerImage = "docker.io/kvasirio/rp2350:latest"
 $ContainerName = "rp2350-$ProjectName"
 
 # Convert Windows path to WSL/Linux path for Docker
-$ProjectPath = $ProjectRoot -replace '\\', '/' -replace '^([A-Z]):', { $_.Value.ToLower() }
+$ProjectPath = $ProjectRoot -replace '\\', '/'
 
 switch ($Command) {
     "start" {

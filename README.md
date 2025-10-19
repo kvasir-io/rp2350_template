@@ -153,6 +153,12 @@ Windows Docker Desktop does not expose the USB subsystem to containers, so you c
    ],
    ```
 
+   Also edit `.vscode/launch.json` and uncomment the `ipAddress` line in both debug configurations:
+
+   ```json
+   "ipAddress": "<JLinkRemoterServerIP>",
+   ```
+
 3. **Flash and debug as normal:**
 
    The flash and debug commands will now connect to the JLinkRemoteServer running on your Windows host.
