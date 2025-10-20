@@ -35,6 +35,7 @@ jobs:
             docker_build/*.uf2
             docker_build/*.lst
             docker_build/*.map
+            docker_build/*_string_constants.json
 
   release:
     runs-on: ubuntu-latest

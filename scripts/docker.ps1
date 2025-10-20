@@ -47,7 +47,7 @@ switch ($Command) {
         }
 
         Write-Host "Starting container: $ContainerName"
-        docker run --rm -d --name $ContainerName -v "${ProjectPath}:/workspace/project" --privileged $DockerImage sleep infinity
+        docker run --rm -d --name $ContainerName -v "${ProjectPath}:/workspace/project" --privileged --network=host $DockerImage sleep infinity
         if ($LASTEXITCODE -ne 0) {
             Write-Error "Failed to start container"
             exit 1

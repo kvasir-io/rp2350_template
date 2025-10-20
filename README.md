@@ -4,17 +4,61 @@ A template project for RP2350 development using the Kvasir SDK.
 
 ## Setup Options
 
-You can set up this project in two ways: using Docker with VSCode (recommended for easy setup) or native development with Clang 20+.
+You can set up this project in three ways: using VSCode Dev Containers (easiest), Docker with manual setup, or native development.
 
 ---
 
-## Option 1: Docker Development (Recommended)
+## Option 1: VSCode Dev Container (Easiest)
+
+This is the recommended approach for the fastest and easiest setup. VSCode will automatically configure everything for you.
+
+### Prerequisites
+
+- **VSCode** with the **Dev Containers** extension installed
+- **Docker** installed on your system
+
+**Note:** For flashing and debugging, see the [Flashing/Debugging with Docker](#flashingdebugging-with-docker) section below.
+
+### Steps
+
+1. **Open the project in VSCode:**
+
+2. **Reopen in container:**
+   - VSCode will detect the dev container configuration
+   - Click the "Reopen in Container" button when prompted
+   - Or press `F1` → `Dev Containers: Reopen in Container`
+
+3. **Wait for setup** (1-2 minutes on first run):
+   - VSCode pulls the Docker image
+   - Installs required extensions
+   - Configures the build environment
+
+4. **Start developing:**
+   - All tools are ready (Clang, CMake, debugger)
+   - JLinkRemoteServer is automatically started on your host
+   - Build with `Ctrl+Shift+P` → `Tasks: Run Build Task`
+   - Flash and debug with `F5`
+
+That's it! Everything is pre-configured.
+
+### What's Included
+
+- Clang compiler toolchain
+- CMake build system
+- VSCode extensions (clangd, cortex-debug)
+- Pre-configured build and debug tasks
+
+---
+
+## Option 2: Docker Development (Manual)
 
 This setup uses Docker to provide a pre-configured build environment with all dependencies included.
 
 ### Prerequisites
 
 - Docker installed on your system
+
+**Note:** For flashing and debugging, see the [Flashing/Debugging with Docker](#flashingdebugging-with-docker) section below.
 
 ### Steps
 
@@ -37,24 +81,22 @@ This setup uses Docker to provide a pre-configured build environment with all de
    ./scripts/build.sh
    ```
 
-   This will build all configurations. You can also use make targets directly:
+   This configures CMake and builds all configurations. After running `build.sh`, you can use make targets for individual operations:
 
    ```bash
    cd /workspace/project/docker_build
 
-   # Build specific configurations
+   # Build debug configuration
    make debug
-   make release_log
-   make sanitize
 
-   # Flash firmware
+   # Flash debug firmware
    make flash_debug
-   make flash_release_log
 
    # View serial output
    make log_debug
-   make log_release_log
    ```
+
+   See the **Make Targets Reference** section at the end for all available build configurations.
 
 ### Docker Commands
 
@@ -84,101 +126,79 @@ This setup uses Docker to provide a pre-configured build environment with all de
 
 ---
 
-## Option 1B: VSCode with Docker (IDE Integration)
+## Flashing/Debugging with Docker
 
-If you prefer using VSCode with IDE features, you can attach VSCode to the running Docker container.
-
-### Additional Prerequisites
-
-- VSCode with the **Dev Containers** extension installed
-
-### Steps
-
-1. **Start the Docker container** (if not already running):
-
-   ```bash
-   ./scripts/docker.sh start
-   ```
-
-2. **Attach VSCode to the running container:**
-   - Open VSCode
-   - Press `F1` or `Ctrl+Shift+P`
-   - Run command: `Dev Containers: Attach to Running Container...`
-   - Select the `rp2350-rp2350_template` container
-
-3. **Open the project folder** inside the container:
-   - `/workspace/project`
-
-4. **Build your project** using VSCode tasks:
-   - Press `Ctrl+Shift+P` → `Tasks: Run Build Task`
-   - Or use the predefined tasks: Build, Flash, Log
-
----
-
-## Windows-Specific Setup for Flashing/Debugging
-
-Windows Docker Desktop does not expose the USB subsystem to containers, so you cannot directly flash or debug from inside the Docker container. To work around this, you need to use **JLinkRemoteServer** running on your Windows host.
+When using Docker (Options 1 or 2), the recommended approach is to use **JLinkRemoteServer**. This is required on Windows because Docker Desktop doesn't expose USB devices to containers.
 
 ### Prerequisites
 
-- [SEGGER J-Link Software](https://www.segger.com/downloads/jlink/) installed on Windows
+- [SEGGER J-Link Software](https://www.segger.com/downloads/jlink/) installed
 - JLinkRemoteServer (included with J-Link Software)
+- J-Link probe connected to your RP2350 board
 
-### Steps
+### Quick Setup
 
-1. **Start JLinkRemoteServer on Windows:**
+**For VSCode Dev Container users (Option 1):**
 
-   - Open a Command Prompt or PowerShell
-   - Run: `JLinkRemoteServer.exe`
-   - Leave it running in the background
-   - It will listen on port 19020 by default
+JLinkRemoteServer is automatically started when you open the dev container. No manual setup required!
 
-2. **Configure the project to use the remote J-Link:**
+**For Docker manual setup users (Option 2):**
 
-   **Option A: For command-line builds:**
+1. **Start JLinkRemoteServer on your host machine:**
 
-   When running cmake, add the JLINK_IP variable:
+   **Windows:**
+   ```powershell
+   JLinkRemoteServer.exe
+   ```
 
+   **Linux/Mac:**
    ```bash
-   cmake .. -DJLINK_IP=<JLinkRemoterServerIP>
+   JLinkRemoteServer
    ```
 
-   **Option B: For VSCode (inside Docker container):**
+   Leave it running in the background (listens on port 19020 by default).
 
-   Edit `.vscode/settings.json` and uncomment these lines:
+2. **That's it!** The project is pre-configured to connect to your host machine.
 
-   ```json
-   "cmake.configureArgs": [
-     "-DJLINK_IP=<JLinkRemoterServerIP>"
-   ],
-   ```
+### Custom Network Setup
 
-   Also edit `.vscode/launch.json` and uncomment the `ipAddress` line in both debug configurations:
+If you need to use a different IP address (e.g., JLinkRemoteServer on another machine):
 
-   ```json
-   "ipAddress": "<JLinkRemoterServerIP>",
-   ```
+**For VSCode users:**
 
-3. **Flash and debug as normal:**
+Edit `.devcontainer/devcontainer.json` and change the `JLINK_IP` variable:
+```json
+"containerEnv": {
+  "JLINK_IP": "127.0.0.1"
+},
+```
 
-   The flash and debug commands will now connect to the JLinkRemoteServer running on your Windows host.
+**For command-line builds:**
+```bash
+cmake .. -DJLINK_IP=127.0.0.1
+```
+
+Replace `127.0.0.1` with your JLinkRemoteServer's IP address.
 
 ### Notes
 
-- JLinkRemoteServer must be running whenever you want to flash or debug
-- This setup works for both command-line and VSCode workflows
+- **VSCode Dev Container users:** JLinkRemoteServer starts automatically
+- **Docker manual setup users:** You must start JLinkRemoteServer manually whenever you want to flash or debug
 
 ---
 
-## Option 2: Native Development (Without Docker)
+## Option 3: Native Development (Without Docker)
 
 This setup requires manual installation of dependencies but gives you full control.
 
 ### Prerequisites
 
-- **Clang 20+** (required)
+- **Clang 20+**
+- **lld (llvm linker)**
 - **CMake 3.28+**
 - **Git**
+- **python-intelhex**
+- [SEGGER J-Link Software](https://www.segger.com/downloads/jlink/)
 
 ### Steps
 
@@ -186,8 +206,8 @@ This setup requires manual installation of dependencies but gives you full contr
 
    ```bash
    # Create a directory for Kvasir dependencies
-   mkdir kvasir_deps
-   cd kvasir_deps
+   mkdir ~/kvasir_deps
+   cd ~/kvasir_deps
 
    # Clone Kvasir SDK (recursively)
    git clone --recursive https://github.com/kvasir-io/Kvasir_SDK
@@ -203,15 +223,16 @@ This setup requires manual installation of dependencies but gives you full contr
 
    ```bash
    # Navigate back to your project directory
-   cd /path/to/rp2350_template
+   cd ~/rp2350_template
 
    # Create build directory
    mkdir build
    cd build
 
    # Configure with CMake
+   # Replace ~/kvasir_deps/Kvasir_SDK with your actual kvasir_deps location
    env CC=clang CXX=clang++ cmake .. \
-     -DKVASIR_ROOT=/path/to/kvasir_deps/Kvasir_SDK \
+     -DKVASIR_ROOT=~/kvasir_deps/Kvasir_SDK \
      -DUSE_FORCE_FETCH=ON
    ```
 
@@ -221,19 +242,16 @@ This setup requires manual installation of dependencies but gives you full contr
    cmake --build . --parallel $(nproc)
    ```
 
-4. **View serial output (optional):**
-
-   After flashing your firmware, you can view the serial output:
+4. **Flash the firmware:**
 
    ```bash
-   # For debug build
+   make flash_debug
+   ```
+
+5. **View serial output (optional):**
+
+   ```bash
    make log_debug
-
-   # For release build with logging
-   make log_release_log
-
-   # For sanitize build
-   make log_sanitize
    ```
 
 ### Build Output
@@ -246,37 +264,6 @@ After building, you'll find the firmware files in the build directory:
 
 ---
 
-## VSCode Tasks
-
-The project includes predefined tasks for common operations:
-
-- **Build** - Compile the project (prompts for configuration)
-- **Flash** - Flash firmware to device (prompts for configuration)
-- **Log** - View serial output (prompts for configuration)
-
-Available configurations:
-- Debug
-- Release (with logging)
-- Release (no logging)
-- Sanitize
-
-Access tasks via `Ctrl+Shift+P` → `Tasks: Run Task`
-
----
-
-## Debugging
-
-Two launch configurations are available:
-
-1. **Flash and Debug** - Flashes firmware then attaches debugger
-2. **Attach Only** - Just attaches to running device
-
-Both require a J-Link debugger connected to your RP2350.
-
-Press `F5` to start debugging.
-
----
-
 ## CI/CD
 
 The project includes a GitHub Actions workflow that automatically builds firmware on every push to `master`.
@@ -285,16 +272,30 @@ Artifacts are available in the Actions tab after each build.
 
 ---
 
-## Project Structure
+## Make Targets Reference
 
-```
-.
-├── src/                    # Source code
-├── scripts/                # Build and Docker scripts
-├── .vscode/                # VSCode configuration
-├── .github/workflows/      # CI/CD configuration
-└── CMakeLists.txt          # CMake configuration
-```
+### Build Targets
+| Command | Description |
+|---------|-------------|
+| `make debug` | Debug build with symbols and assertions |
+| `make release_log` | Optimized build with logging enabled |
+| `make release` | Fully optimized build without logging |
+| `make sanitize` | Debug build with address/UB sanitizers |
+
+### Flash Targets
+| Command | Description |
+|---------|-------------|
+| `make flash_debug` | Flash the debug build to device |
+| `make flash_release_log` | Flash the release build (with logging) |
+| `make flash_release` | Flash the release build (no logging) |
+| `make flash_sanitize` | Flash the sanitizer build |
+
+### Log Targets
+| Command | Description |
+|---------|-------------|
+| `make log_debug` | View serial output from debug build |
+| `make log_release_log` | View serial output from release build |
+| `make log_sanitize` | View serial output from sanitizer build |
 
 ---
 
