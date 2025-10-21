@@ -187,6 +187,48 @@ Replace `127.0.0.1` with your JLinkRemoteServer's IP address.
 
 ---
 
+## Alternative Flashing Method: Picotool & UF2
+
+If you don't have a J-Link probe, you can flash the firmware using the UF2 files generated during the build process. This method works with all setup options (Dev Container, Docker, or Native).
+
+### Using BOOTSEL Mode (No Debug Probe Required)
+
+1. **Enter BOOTSEL mode:**
+   - Disconnect the RP2350 from USB
+   - Hold down the BOOTSEL button
+   - Connect USB while holding the button
+   - Release the button
+   - The device appears as a USB mass storage device
+
+2. **Flash using UF2 file:**
+   ```bash
+   # Simple drag-and-drop method (adjust path to your build directory)
+   cp docker_build/debug_flash.uf2 /media/RPI-RP2/
+
+   # Or use picotool
+   picotool load docker_build/debug_flash.uf2
+   ```
+
+### Using Picotool (Direct Upload)
+
+Picotool can upload firmware without entering BOOTSEL mode if the device is already running compatible firmware:
+
+```bash
+# Flash debug firmware (adjust path to your build directory)
+picotool load docker_build/debug_flash.uf2 -f
+
+# Flash release firmware
+picotool load docker_build/release_flash.uf2 -f
+
+# Flash sanitize firmware
+picotool load docker_build/sanitize_flash.uf2 -f
+
+# Reboot the device after flashing
+picotool reboot
+```
+
+---
+
 ## Option 3: Native Development (Without Docker)
 
 This setup requires manual installation of dependencies but gives you full control.
