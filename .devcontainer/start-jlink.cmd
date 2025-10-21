@@ -1,18 +1,29 @@
 @echo off
-REM Start JLinkRemoteServer if not already running
+setlocal
 
-where JLinkRemoteServerExe >nul 2>&1
-if %ERRORLEVEL% NEQ 0 (
-    echo JLinkRemoteServer not found in PATH, skipping...
-    exit /b 0
+REM --- Auto-detect JLinkRemoteServer.exe ---
+set "JLINK_EXE="
+
+if exist "C:\Program Files\SEGGER\JLink\JLinkRemoteServer.exe" set "JLINK_EXE=C:\Program Files\SEGGER\JLink\JLinkRemoteServer.exe"
+if exist "C:\Program Files (x86)\SEGGER\JLink\JLinkRemoteServer.exe" set "JLINK_EXE=C:\Program Files (x86)\SEGGER\JLink\JLinkRemoteServer.exe"
+
+if not defined JLINK_EXE (
+    for %%A in (JLinkRemoteServer.exe) do (
+        where /q %%A && for /f "delims=" %%B in ('where %%A') do set "JLINK_EXE=%%B"
+    )
 )
 
-tasklist /FI "IMAGENAME eq JLinkRemoteServerExe.exe" 2>NUL | find /I /N "JLinkRemoteServerExe.exe">NUL
-if %ERRORLEVEL% EQU 0 (
-    echo JLinkRemoteServer is already running
-) else (
-    echo Starting JLinkRemoteServer...
-    start /B JLinkRemoteServerExe -select USB
-    timeout /t 2 /nobreak >nul
-    echo JLinkRemoteServer started
+if not defined JLINK_EXE (
+    if exist "%~dp0JLinkRemoteServer.exe" set "JLINK_EXE=%~dp0JLinkRemoteServer.exe"
 )
+
+if not defined JLINK_EXE exit /b 0
+
+REM --- Skip if already running ---
+tasklist /FI "IMAGENAME eq JLinkRemoteServer.exe" 2>NUL | find /I "JLinkRemoteServer.exe" >NUL && exit /b 0
+
+REM --- Start silently ---
+start "" "%JLINK_EXE%" -select USB -nolog -port 19020
+
+endlocal
+exit /b 0
