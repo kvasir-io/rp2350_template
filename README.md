@@ -4,7 +4,7 @@ A template project for RP2350 development using the Kvasir SDK.
 
 ## Setup Options
 
-You can set up this project in three ways: using VSCode Dev Containers (easiest), Docker with manual setup, or native development.
+You can set up this project in three ways: [using VSCode Dev Containers](#option-1-vscode-dev-container-easiest) (easiest), [Docker with manual setup](#option-2-docker-development-manual), or [native development](#option-3-native-development-without-docker).
 
 ---
 

@@ -148,30 +148,6 @@
                 }
               ],
               "default": "log_release_log"
-            },
-            {
-              "id": "debugBinary",
-              "type": "pickString",
-              "description": "Select binary to debug",
-              "options": [
-                {
-                  "label": "Debug",
-                  "value": "debug"
-                },
-                {
-                  "label": "Release (with logging)",
-                  "value": "release_log"
-                },
-                {
-                  "label": "Release (no logging)",
-                  "value": "release"
-                },
-                {
-                  "label": "Sanitize",
-                  "value": "sanitize"
-                }
-              ],
-              "default": "release_log"
             }
           ]
         },
