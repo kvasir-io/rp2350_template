@@ -65,13 +65,13 @@ This setup uses Docker to provide a pre-configured build environment with all de
 1. **Start the Docker container:**
 
    ```bash
-   ./scripts/docker.sh start
+   ./scripts/container.sh start
    ```
 
 2. **Attach to the container:**
 
    ```bash
-   ./scripts/docker.sh attach
+   ./scripts/container.sh attach
    ```
 
 3. **Build your project from the command line:**
@@ -102,26 +102,26 @@ This setup uses Docker to provide a pre-configured build environment with all de
 
 ```bash
 # Start container
-./scripts/docker.sh start
+./scripts/container.sh start
 
 # Attach to running container (from terminal)
-./scripts/docker.sh attach
+./scripts/container.sh attach
 
 # Stop container
-./scripts/docker.sh stop
+./scripts/container.sh stop
 ```
 
-**Windows users (PowerShell):** Use `.\scripts\docker.ps1` instead:
+**Windows users (PowerShell):** Use `.\scripts\container.ps1` instead:
 
 ```powershell
 # Start container
-.\scripts\docker.ps1 start
+.\scripts\container.ps1 start
 
 # Attach to running container
-.\scripts\docker.ps1 attach
+.\scripts\container.ps1 attach
 
 # Stop container
-.\scripts\docker.ps1 stop
+.\scripts\container.ps1 stop
 ```
 
 ---

@@ -8,7 +8,7 @@ param(
 )
 
 if ($h -or $help) {
-    Write-Host "Usage: .\docker.ps1 [COMMAND]"
+    Write-Host "Usage: .\container.ps1 [COMMAND]"
     Write-Host "Commands:"
     Write-Host "  start   Start persistent container"
     Write-Host "  attach  Attach to running container"
@@ -57,7 +57,7 @@ switch ($Command) {
     "attach" {
         $existing = docker ps -q -f name=$ContainerName
         if (-not $existing) {
-            Write-Error "Container '$ContainerName' is not running. Start it first with: .\docker.ps1 start"
+            Write-Error "Container '$ContainerName' is not running. Start it first with: .\container.ps1 start"
             exit 1
         }
 
