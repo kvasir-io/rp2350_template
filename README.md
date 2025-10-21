@@ -2,6 +2,38 @@
 
 A template project for RP2350 development using the Kvasir SDK.
 
+<!-- toc -->
+
+- [Setup Options](#setup-options)
+- [Option 1: VSCode Dev Container (Easiest)](#option-1-vscode-dev-container-easiest)
+  * [Prerequisites](#prerequisites)
+  * [Steps](#steps)
+  * [What's Included](#whats-included)
+- [Option 2: Docker Development (Manual)](#option-2-docker-development-manual)
+  * [Prerequisites](#prerequisites-1)
+  * [Steps](#steps-1)
+  * [Docker Commands](#docker-commands)
+- [Option 3: Native Development (Without Docker)](#option-3-native-development-without-docker)
+  * [Prerequisites](#prerequisites-2)
+  * [Steps](#steps-2)
+- [Build Output](#build-output)
+- [Flashing/Debugging with Docker](#flashingdebugging-with-docker)
+  * [Prerequisites](#prerequisites-3)
+  * [Quick Setup](#quick-setup)
+  * [Custom Network Setup](#custom-network-setup)
+  * [Notes](#notes)
+- [Alternative Flashing Method: Picotool & UF2](#alternative-flashing-method-picotool--uf2)
+  * [Using BOOTSEL Mode (No Debug Probe Required)](#using-bootsel-mode-no-debug-probe-required)
+  * [Using Picotool (Direct Upload)](#using-picotool-direct-upload)
+- [CI/CD](#cicd)
+- [Make Targets Reference](#make-targets-reference)
+  * [Build Targets](#build-targets)
+  * [Flash Targets](#flash-targets)
+  * [Log Targets](#log-targets)
+- [License](#license)
+
+<!-- tocstop -->
+
 ## Setup Options
 
 You can set up this project in three ways: [using VSCode Dev Containers](#option-1-vscode-dev-container-easiest) (easiest), [Docker with manual setup](#option-2-docker-development-manual), or [native development](#option-3-native-development-without-docker).
@@ -38,6 +70,7 @@ This is the recommended approach for the fastest and easiest setup. VSCode will 
    - JLinkRemoteServer is automatically started on your host
    - Build with `Ctrl+Shift+P` → `Tasks: Run Build Task`
    - Flash and debug with `F5`
+   - Or use make targets from the terminal (see [Make Targets Reference](#make-targets-reference))
 
 That's it! Everything is pre-configured.
 
@@ -123,6 +156,91 @@ This setup uses Docker to provide a pre-configured build environment with all de
 # Stop container
 .\scripts\container.ps1 stop
 ```
+
+---
+
+## Option 3: Native Development (Without Docker)
+
+This setup requires manual installation of dependencies but gives you full control.
+
+### Prerequisites
+
+- **Clang 20+**
+- **lld (llvm linker)**
+- **CMake 3.28+**
+- **Git**
+- **python-intelhex**
+- [SEGGER J-Link Software](https://www.segger.com/downloads/jlink/)
+
+### Steps
+
+1. **Clone the required Kvasir repositories:**
+
+   ```bash
+   # Create a directory for Kvasir dependencies
+   mkdir ~/kvasir_deps
+   cd ~/kvasir_deps
+
+   # Clone Kvasir SDK (recursively)
+   git clone --recursive https://github.com/kvasir-io/Kvasir_SDK
+
+   # Clone chip support (into a folder named "chip")
+   git clone --recursive https://github.com/kvasir-io/chip_rp2350 chip
+
+   # Clone device definitions
+   git clone --recursive https://github.com/kvasir-io/kvasir_devices
+   ```
+
+2. **Configure the project:**
+
+   ```bash
+   # Navigate back to your project directory
+   cd ~/rp2350_template
+
+   # Create build directory
+   mkdir build
+   cd build
+
+   # Configure with CMake
+   # Replace ~/kvasir_deps/Kvasir_SDK with your actual kvasir_deps location
+   env CC=clang CXX=clang++ cmake .. \
+     -DKVASIR_ROOT=~/kvasir_deps/Kvasir_SDK \
+     -DUSE_FORCE_FETCH=ON
+   ```
+
+3. **Build the project:**
+
+   ```bash
+   cmake --build . --parallel $(nproc)
+   ```
+
+4. **Flash the firmware:**
+
+   ```bash
+   make flash_debug
+   ```
+
+5. **View serial output (optional):**
+
+   ```bash
+   make log_debug
+   ```
+
+See the [Make Targets Reference](#make-targets-reference) section for all available build configurations and commands.
+
+---
+
+## Build Output
+
+After building, you'll find the firmware files in the build directory:
+- `*.uf2` - Drag-and-drop firmware for RP2350
+- `*.elf` - ELF executable with debugging symbols for GDB/debugger
+- `*.bin` - Raw binary firmware
+- `*.hex` - Intel HEX format firmware
+- `*.map` - Memory map showing symbol addresses and section layout
+- `*.lst` - Assembly listing with source code
+- `*_string_constants.json` - Contains all UC_LOG strings
+- `*.ssproj` - Generated [Serial Studio](https://serial-studio.com/) config with plots for all metrics
 
 ---
 
@@ -227,82 +345,7 @@ picotool load docker_build/sanitize_flash.uf2 -f
 picotool reboot
 ```
 
----
-
-## Option 3: Native Development (Without Docker)
-
-This setup requires manual installation of dependencies but gives you full control.
-
-### Prerequisites
-
-- **Clang 20+**
-- **lld (llvm linker)**
-- **CMake 3.28+**
-- **Git**
-- **python-intelhex**
-- [SEGGER J-Link Software](https://www.segger.com/downloads/jlink/)
-
-### Steps
-
-1. **Clone the required Kvasir repositories:**
-
-   ```bash
-   # Create a directory for Kvasir dependencies
-   mkdir ~/kvasir_deps
-   cd ~/kvasir_deps
-
-   # Clone Kvasir SDK (recursively)
-   git clone --recursive https://github.com/kvasir-io/Kvasir_SDK
-
-   # Clone chip support (into a folder named "chip")
-   git clone --recursive https://github.com/kvasir-io/chip_rp2350 chip
-
-   # Clone device definitions
-   git clone --recursive https://github.com/kvasir-io/kvasir_devices
-   ```
-
-2. **Configure the project:**
-
-   ```bash
-   # Navigate back to your project directory
-   cd ~/rp2350_template
-
-   # Create build directory
-   mkdir build
-   cd build
-
-   # Configure with CMake
-   # Replace ~/kvasir_deps/Kvasir_SDK with your actual kvasir_deps location
-   env CC=clang CXX=clang++ cmake .. \
-     -DKVASIR_ROOT=~/kvasir_deps/Kvasir_SDK \
-     -DUSE_FORCE_FETCH=ON
-   ```
-
-3. **Build the project:**
-
-   ```bash
-   cmake --build . --parallel $(nproc)
-   ```
-
-4. **Flash the firmware:**
-
-   ```bash
-   make flash_debug
-   ```
-
-5. **View serial output (optional):**
-
-   ```bash
-   make log_debug
-   ```
-
-### Build Output
-
-After building, you'll find the firmware files in the build directory:
-- `*.uf2` - Drag-and-drop firmware for RP2350
-- `*.elf` - Debugging symbols
-- `*.bin` / `*.hex` - Raw firmware binaries
-- `*.map` / `*.lst` - Memory map and assembly listings
+See the [Make Targets Reference](#make-targets-reference) section for details on available build configurations.
 
 ---
 

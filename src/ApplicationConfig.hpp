@@ -7,7 +7,7 @@
 
 using Clock          = HW::SystickClock;
 using StackProtector = Kvasir::StackProtector<>;
-using FaultHandler   = Kvasir::Fault::Handler<HW::Fault_CleanUpAction>;
+using FaultHandler   = Kvasir::Fault::Handler<>;
 
 using Startup = Kvasir::Startup::
   Startup<HW::ClockSettings, Clock, HW::ComBackend, FaultHandler, StackProtector, HW::PinConfig>;

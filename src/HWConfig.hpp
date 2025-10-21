@@ -6,10 +6,6 @@ namespace Pin {
     using led = decltype(makePinLocation(Kvasir::Io::port0, Kvasir::Io::pin25));
 }   // namespace Pin
 
-struct Fault_CleanUpAction {
-    void operator()() {}
-};
-
 struct PinConfig {
     static constexpr auto powerClockEnable
       = list(clear(Kvasir::Peripheral::RESETS::Registers<>::RESET::io_bank0),

@@ -3,7 +3,7 @@
   "image": "docker.io/kvasirio/rp2350:latest",
   "workspaceFolder": "/workspace/project",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace/project,type=bind",
-  "initializeCommand": "${localWorkspaceFolder}/.devcontainer/start-jlink.sh || powershell -ExecutionPolicy Bypass -File ${localWorkspaceFolder}/.devcontainer/start-jlink.ps1",
+  "initializeCommand": "${localWorkspaceFolder}/.devcontainer/start-jlink",
   "runArgs": [
     "--privileged",
     "--network=host"

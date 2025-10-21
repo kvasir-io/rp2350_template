@@ -33,7 +33,7 @@ struct SystickClockConfig {
     static constexpr auto clockBase = Kvasir::Systick::useProcessorClock;
 
     static constexpr auto clockSpeed     = ClockSpeed;
-    static constexpr auto minOverrunTime = std::chrono::years(32);
+    static constexpr auto minOverrunTime = std::chrono::years(15);
 };
 
 using SystickClock = Kvasir::Systick::SystickClockBase<SystickClockConfig>;
