@@ -81,6 +81,13 @@ That's it! Everything is pre-configured.
 - VSCode extensions (clangd, cortex-debug)
 - Pre-configured build and debug tasks
 
+### Updating the Dev Container Image
+
+VSCode does not automatically pull new image versions. To update:
+
+1. Pull the latest image: `docker pull docker.io/kvasirio/rp2350:latest`
+2. Press `F1` → `Dev Containers: Rebuild Container`
+
 ---
 
 ## Option 2: Docker Development (Manual)
@@ -284,19 +291,24 @@ If you need to use a different IP address (e.g., JLinkRemoteServer on another ma
 
 **For VSCode users:**
 
-Edit `.devcontainer/devcontainer.json` and change the `JLINK_IP` variable:
-```json
-"containerEnv": {
-  "JLINK_IP": "127.0.0.1"
-},
+By default, JLink IP is automatically detected:
+- On **Linux**: Uses `127.0.0.1` (localhost)
+- On **Windows**: Auto-detects the Windows host IP
+
+To override with a custom IP address, create `.devcontainer/jlink.conf` with:
 ```
+JLINK_IP=192.168.1.100
+```
+
+**Note:** After creating or modifying `jlink.conf`, you need to rebuild the container:
+- Press `F1` → `Dev Containers: Rebuild Container Without Cache`
 
 **For command-line builds:**
 ```bash
-cmake .. -DJLINK_IP=127.0.0.1
+cmake .. -DJLINK_IP=192.168.1.100
 ```
 
-Replace `127.0.0.1` with your JLinkRemoteServer's IP address.
+Replace `192.168.1.100` with your JLinkRemoteServer's IP address.
 
 ### Notes
 

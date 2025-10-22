@@ -1,0 +1,26 @@
+#!/bin/bash
+# This script runs on Linux HOST before container creation
+# On Linux, JLink is accessible at localhost via --network=host
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Read configuration from jlink.conf if it exists
+if [ -f "$SCRIPT_DIR/jlink.conf" ]; then
+    # Source the config file to get JLINK_IP value
+    if ! source "$SCRIPT_DIR/jlink.conf" 2>/dev/null; then
+        echo "Warning: Failed to parse jlink.conf, using auto-detection"
+        JLINK_IP=""
+    fi
+fi
+
+# Check if user specified a manual IP (not "auto")
+if [ -n "$JLINK_IP" ] && [ "$JLINK_IP" != "auto" ]; then
+    echo "Linux: Using manual override JLINK_IP=$JLINK_IP"
+else
+    # Auto-detect: on Linux use localhost
+    JLINK_IP="127.0.0.1"
+    echo "Linux: Auto-detected JLINK_IP=127.0.0.1"
+fi
+
+# Write to .env file for container to use
+echo "JLINK_IP=$JLINK_IP" > "$SCRIPT_DIR/.env"

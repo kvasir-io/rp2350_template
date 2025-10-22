@@ -3,36 +3,32 @@
   "image": "docker.io/kvasirio/rp2350:latest",
   "workspaceFolder": "/workspace/project",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace/project,type=bind",
-  "initializeCommand": "${localWorkspaceFolder}/.devcontainer/start-jlink",
+  "initializeCommand": "${localWorkspaceFolder}/.devcontainer/init-env && ${localWorkspaceFolder}/.devcontainer/start-jlink",
   "runArgs": [
     "--privileged",
-    "--network=host"
+    "--network=host",
+    "--env-file=${localWorkspaceFolder}/.devcontainer/.env"
   ],
-  "containerEnv": {
-    "JLINK_IP": "127.0.0.1"
-  },
   "customizations": {
     "vscode": {
       "extensions": [
         "llvm-vs-code-extensions.vscode-clangd",
-        "ms-vscode.cpptools-extension-pack",
+        "ms-vscode.cmake-tools",
         "marus25.cortex-debug"
       ],
       "settings": {
-        "cmake.buildDirectory": "${workspaceFolder}/docker_build",
-        "cmake.configureEnvironment": {
-          "CC": "clang",
-          "CXX": "clang++"
-        },
-        "cmake.configureArgs": [
-          "-DJLINK_IP=$ENV{JLINK_IP}"
-        ],
         "clangd.arguments": [
           "--compile-commands-dir=docker_build",
           "--header-insertion=never",
           "--background-index"
         ],
-        "C_Cpp.intelliSenseEngine": "disabled",
+        "extensions.ignoreRecommendations": true,
+        "extensions.showRecommendationsOnlyOnDemand": false,
+        "cmake.automaticReconfigure": false,
+        "cmake.autoSelectActiveFolder": false,
+        "cmake.buildBeforeRun": false,
+        "cmake.configureOnEdit": false,
+        "cmake.configureOnOpen": false,
         "git.openRepositoryInParentFolders": "never",
         "tasks": {
           "version": "2.0.0",
@@ -40,44 +36,44 @@
             {
               "label": "Build",
               "type": "shell",
-              "command": "make",
+              "command": "cmake",
               "args": [
-                "${input:buildTarget}"
+                "--build",
+                "${workspaceFolder}/docker_build",
+                "--target",
+                "${input:buildTarget}",
+                "--parallel"
               ],
-              "options": {
-                "cwd": "${workspaceFolder}/docker_build"
-              },
               "group": {
                 "kind": "build",
                 "isDefault": true
-              },
-              "problemMatcher": []
+              }
             },
             {
               "label": "Flash",
               "type": "shell",
-              "command": "make",
+              "command": "cmake",
               "args": [
-                "${input:flashTarget}"
+                "--build",
+                "${workspaceFolder}/docker_build",
+                "--target",
+                "${input:flashTarget}",
+                "--parallel"
               ],
-              "options": {
-                "cwd": "${workspaceFolder}/docker_build"
-              },
-              "group": "build",
-              "problemMatcher": []
+              "group": "build"
             },
             {
               "label": "Log",
               "type": "shell",
-              "command": "make",
+              "command": "cmake",
               "args": [
-                "${input:logTarget}"
+                "--build",
+                "${workspaceFolder}/docker_build",
+                "--target",
+                "${input:logTarget}",
+                "--parallel"
               ],
-              "options": {
-                "cwd": "${workspaceFolder}/docker_build"
-              },
-              "group": "build",
-              "problemMatcher": []
+              "group": "build"
             }
           ],
           "inputs": [
@@ -216,6 +212,7 @@
       }
     }
   },
-  "postCreateCommand": "git config --global --add safe.directory /workspace/project",
+  "onCreateCommand": "git config --global --add safe.directory /workspace/project && ./scripts/configure.sh docker_build -DJLINK_IP=${JLINK_IP}",
+  "postStartCommand": "./scripts/build.sh docker_build -DJLINK_IP=${JLINK_IP}",
   "overrideCommand": true
 }

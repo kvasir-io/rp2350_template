@@ -44,7 +44,7 @@ if [ "$1" = "start" ]; then
     fi
 
     echo "Starting container: ${CONTAINER_NAME}"
-    if ! $DOCKER_CMD run --rm -d --name "${CONTAINER_NAME}" -v "${PROJECT_ROOT}/:/workspace/project" --privileged --network=host ${USER_MAPPING_FLAGS} "${DOCKER_IMAGE}" sleep infinity; then
+    if ! $DOCKER_CMD run --rm -d --name "${CONTAINER_NAME}" -v "${PROJECT_ROOT}/:/workspace/project" --privileged --network=host "${USER_MAPPING_FLAGS}" "${DOCKER_IMAGE}" sleep infinity; then
         echo "Error: Failed to start container"
         exit 1
     fi
@@ -57,7 +57,7 @@ elif [ "$1" = "attach" ]; then
     fi
 
     echo "Attaching to container: ${CONTAINER_NAME}"
-    if ! $DOCKER_CMD exec -it ${EXEC_USER_FLAGS} "${CONTAINER_NAME}" fish; then
+    if ! $DOCKER_CMD exec -it "${EXEC_USER_FLAGS}" "${CONTAINER_NAME}" fish; then
         echo "Error: Failed to attach to container"
         exit 1
     fi

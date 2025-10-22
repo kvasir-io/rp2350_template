@@ -5,7 +5,7 @@ set -e
 if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
     echo "Usage: $0 [BUILD_DIR] [CMAKE_FLAGS...]"
     echo ""
-    echo "Builds the project using CMake and Clang"
+    echo "Configures and builds the project using CMake and Clang"
     echo ""
     echo "Arguments:"
     echo "  BUILD_DIR      Build directory (default: docker_build)"
@@ -21,11 +21,12 @@ fi
 BUILD_DIR="${1:-docker_build}"
 shift 2>/dev/null || true
 
-echo "Configuring project in ${BUILD_DIR}..."
-mkdir -p "${BUILD_DIR}"
-env CC=clang CXX=clang++ cmake . -B "${BUILD_DIR}" "$@"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-echo "Building..."
-cmake --build "${BUILD_DIR}" --parallel "$(nproc)"
+"${SCRIPT_DIR}/configure.sh" "$BUILD_DIR" "$@"
+
+# Build all targets
+echo "Building all targets..."
+cmake --build "${BUILD_DIR}" --parallel
 
 echo "Build complete! Artifacts in ${BUILD_DIR}/"
