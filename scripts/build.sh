@@ -21,6 +21,10 @@ fi
 BUILD_DIR="${1:-docker_build}"
 shift 2>/dev/null || true
 
+if [ $# -eq 0 ]; then
+    set -- "-DUSE_FORCE_FETCH=ON"
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 "${SCRIPT_DIR}/configure.sh" "$BUILD_DIR" "$@"
