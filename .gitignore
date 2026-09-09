@@ -6,3 +6,4 @@ compile_commands.json
 .cache
 .devcontainer/.env
 .devcontainer/jlink.conf
+justfile
