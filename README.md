@@ -247,7 +247,6 @@ After building, you'll find the firmware files in the build directory:
 - `*.map` - Memory map showing symbol addresses and section layout
 - `*.lst` - Assembly listing with source code
 - `*_string_constants.json` - Contains all UC_LOG strings
-- `*.ssproj` - Generated [Serial Studio](https://serial-studio.com/) config with plots for all metrics
 
 ---
 
