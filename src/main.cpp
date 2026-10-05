@@ -2,18 +2,19 @@
 //
 
 #include <cmake_git_version/version.hpp>
+#include <kvasir/Util/Periodic.hpp>
 
 int main() {
     UC_LOG_D("{}", CMakeGitVersion::FullVersion);
     UC_LOG_D("Reset cause: {}", Kvasir::PM::reset_cause());
 
-    auto next     = Clock::time_point{};
-    bool ledState = false;
+    // every 500 ms from now (not from the clock's epoch: that would burst uptime / 500 ms toggles
+    // at boot on a clock that does not start at 0)
+    Kvasir::Every<Clock> blink{std::chrono::milliseconds{500}};
+    bool                 ledState = false;
 
     while(true) {
-        auto const now = Clock::now();
-        if(now > next) {
-            next += std::chrono::milliseconds{500};
+        if(blink.due()) {
             if(ledState) {
                 apply(clear(HW::Pin::led{}));
             } else {
@@ -22,8 +23,8 @@ int main() {
             ledState = !ledState;
             UC_LOG_D("Led: {}", ledState);
         }
-        StackProtector::handler();
+        Startup::run<Kvasir::Hook::MainLoop>();   // StackProtector and whoever else extends it
     }
 }
 
-KVASIR_START(Startup)
+template struct Kvasir::Startup::Start<Startup>;
