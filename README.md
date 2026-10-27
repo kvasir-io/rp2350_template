@@ -191,8 +191,8 @@ This setup requires manual installation of dependencies but gives you full contr
    # Clone Kvasir SDK (recursively)
    git clone --recursive https://github.com/kvasir-io/Kvasir_SDK
 
-   # Clone chip support (into a folder named "chip")
-   git clone --recursive https://github.com/kvasir-io/chip_rp2350 chip
+   # Clone chip support
+   git clone --recursive https://github.com/kvasir-io/chip_rp2350
 
    # Clone device definitions
    git clone --recursive https://github.com/kvasir-io/kvasir_devices
@@ -212,6 +212,7 @@ This setup requires manual installation of dependencies but gives you full contr
    # Replace ~/kvasir_deps/Kvasir_SDK with your actual kvasir_deps location
    env CC=clang CXX=clang++ cmake .. \
      -DKVASIR_ROOT=~/kvasir_deps/Kvasir_SDK \
+     -DCHIP_ROOT=~/kvasir_deps/chip_rp2350 \
      -DUSE_FORCE_FETCH=ON
    ```
 

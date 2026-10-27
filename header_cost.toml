@@ -1,0 +1,17 @@
+# Preprocessed-line ceilings of this firmware's main TU (Kvasir_SDK tools/header_cost.py check; CI runs it on
+# docker_build with --tree): a TU over its ceiling + margin fails, one far below says "lower it". Numbers: non-empty
+# `-E -P` lines, measured with `header_cost.py measure build release release_log`; raise a ceiling only with the
+# reason in the change.
+margin_percent = 2
+
+[[tu]]
+tree = "build"
+target = "release"
+file = "src/main.cpp"
+lines = 157414
+
+[[tu]]
+tree = "build"
+target = "release_log"
+file = "src/main.cpp"
+lines = 183221

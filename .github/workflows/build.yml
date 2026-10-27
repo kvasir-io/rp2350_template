@@ -24,7 +24,23 @@ jobs:
       - name: Build firmware
         run: ./scripts/build.sh
 
+      # the main TU's preprocessed lines against header_cost.toml (the image's Kvasir_SDK tools/header_cost.py): a TU
+      # past its ceiling + margin fails; one far below says "lower it" and passes
+      - name: Header cost
+        run: python3 -B /opt/kvasir/tools/header_cost.py check header_cost.toml --tree docker_build
+
+      # clang-tidy over the tree just built (the image's Kvasir_SDK: its tools/tidy.py and .clang-tidy, the same SDK the
+      # firmware was built with): this repository's findings fail, the libraries' are counted as foreign
+      - name: clang-tidy
+        uses: kvasir-io/Kvasir_SDK/.github/actions/tidy@master
+        timeout-minutes: 30
+        with:
+          trees: docker_build
+          sdk: /opt/kvasir
+
+      # a JavaScript action: GitHub puts node into the container, act does not ("node": executable file not found)
       - name: Upload firmware artifacts
+        if: ${{ !env.ACT }}
         uses: actions/upload-artifact@v4
         with:
           name: firmware
