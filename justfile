@@ -6,15 +6,15 @@
 #   just flash release_log && just log release_log
 #
 # Four variants come out of kvasir_executable_variants: debug, release,
-# release_log and sanitize, each with a flash_<v> and a log_<v> target.
+# release_log and sanitize, each with a flash_<v> target and, but release, a log_<v>.
 #
 # Dependency checkouts are resolved as siblings of this repository and can be
 # pointed anywhere:  `just chip_root=/path/to/chip_rp2350 build`, or via
 # $KVASIR_ROOT / $CHIP_ROOT / $KVASIR_DEVICES_ROOT.
-#
-# KVASIR_ROOT is passed explicitly on purpose: without it CMakeLists.txt takes a
-# Kvasir_SDK next to this repository, else silently clones the SDK, the chip and
-# kvasir_devices into build/_deps, so a build could quietly use the wrong source.
+# If the siblings are not there, no path is passed to CMake at all and
+# CMakeLists.txt clones all three with FetchContent into build/_deps; the
+# justfile's own tools (fw.py, tidy.py) then come from a shallow SDK clone in
+# .kvasir_sdk/ (see kvasir_root below).
 #
 # `just` itself: `sudo pacman -S just` (or `cargo install just`).
 
@@ -42,9 +42,13 @@ build_dir := root / "build" + compiler_suffix
 # and, under the work tree's `just build`, draws from GNU make's shared job
 # pool instead - an explicit -j would opt it out of that pool.
 
-kvasir_root := env('KVASIR_ROOT', tree / 'Kvasir_SDK')
+# Kvasir_SDK: $KVASIR_ROOT, else the sibling checkout, else a shallow clone of master (no submodules) in .kvasir_sdk/ -
+# only for its tools (fw.py, tidy.py), which every recipe needs before CMake runs; CMake fetches its own copy into
+# build/_deps. `just clean-all` removes the clone, the next recipe clones master again.
+sibling_sdk := tree / "Kvasir_SDK"
+kvasir_root := env('KVASIR_ROOT', if path_exists(sibling_sdk / "tools" / "fw.py") == "true" { sibling_sdk } else { root / ".kvasir_sdk" })
 # The shared guard and build-all filter (Kvasir_SDK/tools/fw.py), from the SDK this tree builds with
-fw := kvasir_root / "tools" / "fw.py"
+fw := shell('[ -f "$1/tools/fw.py" ] || [ "$1" != "$2" ] || git clone --quiet --depth 1 https://github.com/kvasir-io/Kvasir_SDK.git "$1" >&2; echo "$1/tools/fw.py"', kvasir_root, root / ".kvasir_sdk")
 chip_root := env('CHIP_ROOT', tree / 'chip_rp2350')
 devices_root := env('KVASIR_DEVICES_ROOT', tree / 'kvasir_devices')
 
@@ -88,16 +92,22 @@ configure: guard
     set -euo pipefail
     # build.ninja, not CMakeCache.txt: an interrupted configure leaves a cache and no build files.
     if [ -f "{{ build_dir }}/build.ninja" ]; then exit 0; fi
-    for d in "{{ kvasir_root }}" "{{ chip_root }}"; do
-        [ -d "$d" ] || { echo "not a directory: $d" >&2; exit 1; }
-    done
+    # All three roots or none: a half-filled set would mix a sibling SDK with
+    # freshly cloned masters of the other two; the tools clone in .kvasir_sdk/
+    # has no submodules and never goes to CMake.
+    roots=()
+    if [ "{{ kvasir_root }}" != "{{ root }}/.kvasir_sdk" ] && [ -d "{{ chip_root }}" ] && [ -d "{{ devices_root }}" ]; then
+        roots=(-DKVASIR_ROOT="{{ kvasir_root }}"
+               -DCHIP_ROOT="{{ chip_root }}"
+               -DKVASIR_DEVICES_ROOT="{{ devices_root }}")
+    else
+        echo "==> no sibling checkouts; FetchContent will clone into {{ build_dir }}/_deps"
+    fi
     # CC/CXX are for the NATIVE sub-builds (uc_log_printer, svd_converter);
     # the ARM toolchain file is chosen by the SDK from COMPILE_TARGET.
     env CC=clang CXX=clang++ cmake -S "{{ root }}" -B "{{ build_dir }}" -G Ninja \
         {{ compiler_flag }} \
-        -DKVASIR_ROOT="{{ kvasir_root }}" \
-        -DCHIP_ROOT="{{ chip_root }}" \
-        -DKVASIR_DEVICES_ROOT="{{ devices_root }}" \
+        "${roots[@]}" \
         -DUSE_FORCE_FETCH=ON \
         {{ if probe == "" { "" } else { "-DJLINK_PROBE='" + probe + "'" } }}
 
@@ -136,9 +146,9 @@ targets: configure
 clean:
     rm -rf "{{ build_dir }}"
 
-# Remove build/ and the container-side docker_build/
+# Remove build/, the container-side docker_build/ and the cloned SDK tools (.kvasir_sdk/)
 clean-all:
-    rm -rf "{{ build_dir }}" "{{ root }}/docker_build"
+    rm -rf "{{ build_dir }}" "{{ root }}/docker_build" "{{ root }}/.kvasir_sdk"
 
 # --- clang-tidy ----------------------------------------------------------------
 
