@@ -2,16 +2,18 @@
 # docker_build with --tree): a TU over its ceiling + margin fails, one far below says "lower it". Numbers: non-empty
 # `-E -P` lines, measured with `header_cost.py measure build release release_log`; raise a ceiling only with the
 # reason in the change.
+# Raised 2026-11-11 (157414 -> 160570, 183221 -> 186543): Kvasir_SDK and chip_rp2350 headers grew ~3150 lines since
+# 2026-10-24 (device test framework, Register::SharedState, picobin and boot-lock SVD additions); nothing here changed.
 margin_percent = 2
 
 [[tu]]
 tree = "build"
 target = "release"
 file = "src/main.cpp"
-lines = 157414
+lines = 160570
 
 [[tu]]
 tree = "build"
 target = "release_log"
 file = "src/main.cpp"
-lines = 183221
+lines = 186543
